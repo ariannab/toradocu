@@ -4,6 +4,7 @@
 /conditions/
 /converted-goal-files/
 /randoop-specs/
+/stats/candidates
 
 # Toradocu's resources (automatically downloaded with Gradle task: unzipGlove)
 /src/main/resources/glove-binary.zip

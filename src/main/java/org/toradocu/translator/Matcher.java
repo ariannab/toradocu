@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import org.toradocu.conf.Configuration;
 import org.toradocu.extractor.DocumentedExecutable;
 import org.toradocu.translator.semantic.SemanticMatcher;
+import org.toradocu.util.MatchToLog;
+import org.toradocu.util.MatchesLogger;
 
 /**
  * The {@code Matcher} class translates subjects and predicates in Javadoc comments to Java
@@ -46,6 +48,8 @@ class Matcher {
     // Extract every CodeElement associated with the method and the containing class of the method.
     Set<CodeElement<?>> codeElements = JavaElementsCollector.collect(method);
 
+    MatchToLog.getInstance().setSubjectMatch(subject);
+    MatchToLog.getInstance().setNumberOfSubjectCandidates(codeElements.size());
     // Clean the subject string by removing words and characters not related to its identity so that
     // they do not influence string matching.
     List<String> wordsToRemove = Arrays.asList("either", "both", "any");
@@ -246,6 +250,11 @@ class Matcher {
                   return true;
                 })
             .collect(Collectors.toSet());
+
+    MatchToLog.getInstance().setNumberOfPredicateCandidates(codeElements.size());
+    MatchToLog.getInstance().setPredicateMatch(predicate);
+    MatchesLogger.getStoredMatches()
+        .put(MatchToLog.getInstance().generateID(), MatchToLog.getInstance());
 
     List<CodeElement<?>> sortedMethodList = new ArrayList<CodeElement<?>>(codeElements);
     if (SemanticMatcher.isEnabled()) {

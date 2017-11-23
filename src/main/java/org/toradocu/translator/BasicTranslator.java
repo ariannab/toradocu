@@ -3,6 +3,7 @@ package org.toradocu.translator;
 import java.util.*;
 import org.toradocu.extractor.BlockTag;
 import org.toradocu.extractor.DocumentedExecutable;
+import org.toradocu.util.MatchToLog;
 
 /**
  * The {@code BasicTranslator} class holds the {@code translate()} methods for {@code BlockTag} of
@@ -19,6 +20,11 @@ public class BasicTranslator {
    * @return a String representing the translation
    */
   public static String translate(BlockTag tag, DocumentedExecutable excMember) {
+    // Set up of a new match (for the given tag) to log!
+    MatchToLog.getInstance().setClassName(excMember.getDeclaringClass().getName());
+    MatchToLog.getInstance().setMethodName(excMember.getSignature());
+    MatchToLog.getInstance().setCommentText(tag.getComment().getText());
+
     // Identify propositions in the comment. Each sentence in the comment is parsed into a
     // PropositionSeries.
     List<PropositionSeries> propositions = Parser.parse(tag.getComment(), excMember);
@@ -28,6 +34,8 @@ public class BasicTranslator {
       translate(props, excMember, tag.getComment().getText());
       conditions.add(props.getTranslation()); // TODO Add only when translation is non-empty?
     }
+
+    MatchToLog.destroy();
     return mergeConditions(conditions);
   }
 

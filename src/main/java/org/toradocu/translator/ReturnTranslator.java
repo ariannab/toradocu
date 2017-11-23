@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.toradocu.extractor.Comment;
 import org.toradocu.extractor.DocumentedExecutable;
 import org.toradocu.extractor.ReturnTag;
+import org.toradocu.util.MatchToLog;
 import randoop.condition.specification.Guard;
 import randoop.condition.specification.PostSpecification;
 import randoop.condition.specification.Property;
@@ -20,6 +21,10 @@ import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 public class ReturnTranslator {
 
   public List<PostSpecification> translate(ReturnTag tag, DocumentedExecutable excMember) {
+    // Set up of a new match (for the given tag) to log!
+    MatchToLog.getInstance().setClassName(excMember.getDeclaringClass().getName());
+    MatchToLog.getInstance().setMethodName(excMember.getSignature());
+    MatchToLog.getInstance().setCommentText(tag.getComment().getText());
     String commentText = tag.getComment().getText();
 
     //Manage translation of each sub-sentence linked by the Or conjunction separately
@@ -38,6 +43,7 @@ public class ReturnTranslator {
       }
     }
 
+    MatchToLog.destroy();
     return mergeOrConjunction(commentText, subSentences, conditions);
   }
 
@@ -472,7 +478,9 @@ public class ReturnTranslator {
           for (Proposition p : prop.getPropositions()) {
             predicateMatch =
                 new Matcher().predicateMatch(method, new GeneralCodeElement("result"), p, comment);
-            if (predicateMatch != null) break;
+            if (predicateMatch != null) {
+              break;
+            }
           }
         }
       }

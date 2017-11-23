@@ -383,6 +383,9 @@ public class Stats {
               collectStats(
                   stats, actualMethodReturnTag, expectedMethodReturnTag, BlockTag.Kind.RETURN));
     }
+    MatchesLogger.printSubjectCandidates();
+    MatchToLog.destroy();
+    MatchesLogger.getStoredMatches().clear();
     return stats;
   }
 
@@ -403,10 +406,16 @@ public class Stats {
         String expectedCondition = expectedTag.getCondition().replace(" ", "");
         String actualCondition = actualTag.getCondition().replace(" ", "");
 
+        MatchToLog matchToLog =
+            MatchesLogger.getStoredMatches().get(stats.identifier + "." + actualTag.getComment());
         if (actualCondition.equals(expectedCondition)) {
           if (!expectedCondition.isEmpty()) {
             stats.addCorrectTranslation(kind);
             outputMessage.append("Correct ");
+            if (matchToLog != null) {
+              matchToLog.setMatchExpected(true);
+              matchToLog.setSuccess(true);
+            }
           } else {
             continue; // No output message when Toradocu does not output anything as expected.
           }
@@ -417,9 +426,17 @@ public class Stats {
           } else if (actualCondition.isEmpty()) {
             stats.addMissingTranslation(kind);
             outputMessage.append("Missing ");
+            if (matchToLog != null) {
+              matchToLog.setMatchExpected(true);
+              matchToLog.setSuccess(false);
+            }
           } else {
             stats.addWrongTranslation(kind);
             outputMessage.append("Wrong ");
+            if (matchToLog != null) {
+              matchToLog.setMatchExpected(true);
+              matchToLog.setSuccess(false);
+            }
           }
         }
         outputMessage
