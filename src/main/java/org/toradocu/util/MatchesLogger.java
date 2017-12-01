@@ -29,16 +29,18 @@ public class MatchesLogger {
 
   /** Prints the stored matches in a CSV file with semicolon separator. */
   static void printSubjectCandidates() {
-    String className = storedMatches.values().stream().findFirst().get().getClassName();
-    try {
-      String log = "stats/candidates/" + className + ".csv";
-      PrintWriter writer = new PrintWriter(new FileWriter(log, true));
-      for (MatchToLog match : storedMatches.values()) {
-        writer.append(prettyPrint(match));
+    if (storedMatches.values().stream().findFirst().isPresent()) {
+      String className = storedMatches.values().stream().findFirst().get().getClassName();
+      try {
+        String log = "stats/candidates/" + className + ".csv";
+        PrintWriter writer = new PrintWriter(new FileWriter(log, true));
+        for (MatchToLog match : storedMatches.values()) {
+          writer.append(prettyPrint(match));
+        }
+        writer.close();
+      } catch (IOException e) {
+        e.printStackTrace();
       }
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
     }
   }
 

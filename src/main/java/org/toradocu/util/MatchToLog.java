@@ -30,10 +30,10 @@ public class MatchToLog {
    * Tells whether we expected a translation for this comment or not (i.e. if a matching was really
    * needed)
    */
-  private boolean isMatchExpected = false;
+  private boolean matchExpected = false;
 
   /** Tells whether our match was the expected one */
-  private boolean isSuccess = false;
+  private boolean success = false;
 
   private MatchToLog() {}
 
@@ -171,23 +171,23 @@ public class MatchToLog {
   }
 
   /**
-   * Setter for the field {@code isMatchExpected}
+   * Setter for the field {@code matchExpected}
    *
    * @param matchExpected boolean value that must be true iff a translation for this match is
    *     expected
    */
   public void setMatchExpected(boolean matchExpected) {
-    isMatchExpected = matchExpected;
+    this.matchExpected = matchExpected;
   }
 
   /**
-   * Setter for the field {@code isSuccess}
+   * Setter for the field {@code success}
    *
    * @param success boolean value that must be true iff the correct translation for this match was
    *     produced
    */
   public void setSuccess(boolean success) {
-    isSuccess = success;
+    this.success = success;
   }
 
   /**
@@ -209,8 +209,8 @@ public class MatchToLog {
 
     if (numberOfSubjectCandidates != that.numberOfSubjectCandidates) return false;
     if (numberOfPredicateCandidates != that.numberOfPredicateCandidates) return false;
-    if (isMatchExpected != that.isMatchExpected) return false;
-    if (isSuccess != that.isSuccess) return false;
+    if (matchExpected != that.matchExpected) return false;
+    if (success != that.success) return false;
     if (className != null ? !className.equals(that.className) : that.className != null)
       return false;
     if (methodName != null ? !methodName.equals(that.methodName) : that.methodName != null)
@@ -233,8 +233,16 @@ public class MatchToLog {
     result = 31 * result + (predicateMatch != null ? predicateMatch.hashCode() : 0);
     result = 31 * result + numberOfSubjectCandidates;
     result = 31 * result + numberOfPredicateCandidates;
-    result = 31 * result + (isMatchExpected ? 1 : 0);
-    result = 31 * result + (isSuccess ? 1 : 0);
+    result = 31 * result + (matchExpected ? 1 : 0);
+    result = 31 * result + (success ? 1 : 0);
     return result;
+  }
+
+  public boolean isMatchExpected() {
+    return matchExpected;
+  }
+
+  public boolean isSuccess() {
+    return success;
   }
 }
