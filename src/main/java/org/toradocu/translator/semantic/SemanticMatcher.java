@@ -449,7 +449,10 @@ public class SemanticMatcher {
 
     // Select as candidates only code elements that have a semantic distance below the chosen threshold.
     LinkedHashMap<CodeElement<?>, Double> orderedDistances;
-
+    System.out.println(commentWords.toString());
+    for (Map.Entry<CodeElement<?>, Double> d : distances.entrySet()) {
+      System.out.println(d.getKey() + ": " + d.getValue());
+    }
     if (!distances.isEmpty()) {
       distances.values().removeIf(aDouble -> aDouble > wmdThreshold);
     }
