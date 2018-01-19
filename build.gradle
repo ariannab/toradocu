@@ -72,7 +72,7 @@ sourceSets {
   }
   test {
     java {
-      excludes = ['org/toradocu/util/old*', 'org/toradocu/regression/*', 'org/toradocu/accuracy/paper/*']
+      excludes = ['org/toradocu/util/old*', 'org/toradocu/regression/*']
     }
   }
 }
