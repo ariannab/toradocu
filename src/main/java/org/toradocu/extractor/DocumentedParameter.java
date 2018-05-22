@@ -122,6 +122,7 @@ public final class DocumentedParameter {
     String paramString = parameter.toString();
     // parameter is of type reflect.Parameter, thus toString() will return a bytecode-format String.
     // We convert it into plain Java format.
+    System.out.println(paramString);
     return paramString.substring(0, paramString.lastIndexOf(" ")) + " " + name;
   }
 }
