@@ -86,6 +86,7 @@ public class SourceCodeBuilder {
       fakeSource.append("\n");
     }
     fakeSource.append("return;} }");
+    System.out.println(fakeSource.toString());
     return fakeSource.toString();
   }
 
