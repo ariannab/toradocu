@@ -170,6 +170,10 @@ public class BasicTranslator {
                 .forEach(System.out::println);
 
         result = translations.get(match);
+        for(Map.Entry<CodeElement<?>, String>translation : translations.entrySet()){
+          System.out.println(translation.getKey());
+          System.out.println(translation.getValue());
+        }
       }
 
       if (result == null) {
