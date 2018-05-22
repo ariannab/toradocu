@@ -99,9 +99,7 @@ public class SourceCodeBuilder {
    */
   public void addArgument(String type, String argument) {
     if (type.contains("$")) {
-      System.out.println(type);
       type = type.replaceAll("\\$", ".");
-      System.out.println(type+"\n");
     }
     arguments.add(type + " " + argument);
   }

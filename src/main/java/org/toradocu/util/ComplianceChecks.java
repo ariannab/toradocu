@@ -207,6 +207,8 @@ public class ComplianceChecks {
           sourceCodeBuilder.addVarArgArgument(argument.toString());
         } else {
           sourceCodeBuilder.addArgument(argument.toString());
+          System.out.println("\n"+argument.toString()+"\n");
+
         }
       }
     }
