@@ -1,6 +1,8 @@
 package org.toradocu.translator;
 
 import java.util.*;
+import java.util.stream.Stream;
+
 import org.toradocu.extractor.BlockTag;
 import org.toradocu.extractor.DocumentedExecutable;
 
@@ -150,8 +152,7 @@ public class BasicTranslator {
       } else { // Only one of the matching subjects should be used.
 
         // Sort matching subjects according to their priorities (defined in CodeElement#compareTo).
-        List<CodeElement<?>> matchingSubjects = new ArrayList<>();
-        matchingSubjects.addAll(translations.keySet());
+        List<CodeElement<?>> matchingSubjects = new ArrayList<>(translations.keySet());
         matchingSubjects.sort(Collections.reverseOrder());
         // Get all the matching subjects with the same priority (i.e., of the same type)
         // and pick the first one
@@ -161,6 +162,12 @@ public class BasicTranslator {
                 .filter(c -> matchingSubjects.get(0).getClass().equals(c.getClass()))
                 .findFirst()
                 .orElse(null);
+
+       System.out.println("\n");
+       matchingCodeElements
+                .stream()
+                .filter(c -> matchingSubjects.get(0).getClass().equals(c.getClass()))
+                .forEach(System.out::println);
 
         result = translations.get(match);
       }
