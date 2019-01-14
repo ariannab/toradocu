@@ -1,5 +1,7 @@
 package org.toradocu.extractor;
 
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.stmt.Statement;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -23,6 +25,17 @@ public final class DocumentedExecutable {
 
   /** Javadoc @param, @return, and @throws tags of this executable member. */
   private BlockTags tags;
+
+  public NodeList<Statement> getMethodBody() {
+    return methodBody;
+  }
+
+  public void setMethodBody(NodeList<Statement> methodBody) {
+    this.methodBody = methodBody;
+  }
+
+  /** The body of the method. Not the nicest solution. */
+  private NodeList<Statement> methodBody;
 
   /** Represents the @param, @return, and @throws tags of an executable member. */
   public static class BlockTags {
@@ -113,9 +126,13 @@ public final class DocumentedExecutable {
    * @param parameters the parameters of this DocumentedExecutable, must not be null
    * @param blockTags the Javadoc comments introduced by block tags (e.g., {@code @param},
    *     {@code @return}) associated with this executable member
+   * @param body
    */
   DocumentedExecutable(
-      Executable executable, List<DocumentedParameter> parameters, BlockTags blockTags) {
+      Executable executable,
+      List<DocumentedParameter> parameters,
+      BlockTags blockTags,
+      NodeList<Statement> body) {
     Checks.nonNullParameter(executable, "executable");
     Checks.nonNullParameter(parameters, "parameters");
 
@@ -123,6 +140,7 @@ public final class DocumentedExecutable {
     checkParametersConsistency(executable.getParameters(), parameters);
     this.parameters = parameters;
     this.tags = blockTags;
+    this.methodBody = body;
   }
 
   /**

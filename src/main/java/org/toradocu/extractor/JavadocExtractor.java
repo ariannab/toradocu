@@ -13,8 +13,10 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.CallableDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.nodeTypes.NodeWithConstructors;
 import com.github.javaparser.ast.nodeTypes.modifiers.NodeWithPrivateModifier;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.javaparser.javadoc.JavadocBlockTag.Type;
@@ -97,9 +99,17 @@ public final class JavadocExtractor {
           createDocumentedParameters(
               sourceCallable.getParameters(), reflectionMember.getParameters());
       final String qualifiedClassName = reflectionMember.getDeclaringClass().getName();
+
+      NodeList<Statement> body = null;
+      if (sourceCallable.isMethodDeclaration()) {
+        body = ((MethodDeclaration) sourceCallable).getBody().get().getStatements();
+      } else if (sourceCallable.isConstructorDeclaration()) {
+        body = ((ConstructorDeclaration) sourceCallable).getBody().getStatements();
+      }
       BlockTags blockTags =
           createTags(classesInPackage, sourceCallable, parameters, qualifiedClassName);
-      documentedExecutables.add(new DocumentedExecutable(reflectionMember, parameters, blockTags));
+      documentedExecutables.add(
+          new DocumentedExecutable(reflectionMember, parameters, blockTags, body));
     }
 
     log.trace(

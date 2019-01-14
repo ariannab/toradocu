@@ -4,6 +4,7 @@ import static org.toradocu.translator.CommentTranslator.processCondition;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import com.github.javaparser.ast.stmt.Statement;
 import com.google.gson.reflect.TypeToken;
 import java.io.*;
 import java.lang.reflect.Type;
@@ -15,6 +16,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -224,46 +227,76 @@ public class Toradocu {
    */
   private static void generateRandoopSpecs(
       Map<DocumentedExecutable, OperationSpecification> specsMap) {
-    File randoopSpecsFile = configuration.randoopSpecsFile();
-    if (!configuration.isSilent() && randoopSpecsFile != null) {
-      generateRandoopSpecsFile(randoopSpecsFile);
-      Collection<OperationSpecification> randoopSpecs = new ArrayList<>();
-      for (DocumentedExecutable documentedExecutable : specsMap.keySet()) {
-        final OperationSpecification spec = specsMap.get(documentedExecutable);
+    // File randoopSpecsFile = configuration.randoopSpecsFile();
+    // if (!configuration.isSilent() && randoopSpecsFile != null) {
+    // generateRandoopSpecsFile(randoopSpecsFile);
+    Collection<OperationSpecification> randoopSpecs = new ArrayList<>();
+    for (DocumentedExecutable documentedExecutable : specsMap.keySet()) {
+      final OperationSpecification spec = specsMap.get(documentedExecutable);
 
-        // Get rid of empty specifications.
-        final List<PreSpecification> preSpecifications = spec.getPreSpecifications();
-        preSpecifications.removeIf(s -> s.getGuard().getConditionText().isEmpty());
-        final List<PostSpecification> postSpecifications = spec.getPostSpecifications();
-        postSpecifications.removeIf(s -> s.getGuard().getConditionText().isEmpty());
-        final List<ThrowsSpecification> throwsSpecifications = spec.getThrowsSpecifications();
-        throwsSpecifications.removeIf(s -> s.getGuard().getConditionText().isEmpty());
-        if (spec.isEmpty()
-            || (preSpecifications.isEmpty()
-                && postSpecifications.isEmpty()
-                && throwsSpecifications.isEmpty())) {
-          continue;
-        }
-
-        // Convert specifications to Randoop format: args -> actual param name.
-        final List<PreSpecification> randoopPreSpecs =
-            convertPreSpecifications(documentedExecutable, preSpecifications);
-        final List<PostSpecification> randoopPostSpecs =
-            convertPostSpecifications(documentedExecutable, postSpecifications);
-        final List<ThrowsSpecification> randoopThrowsSpecs =
-            convertThrowsSpecifications(documentedExecutable, throwsSpecifications);
-
-        final OperationSpecification newOperationSpec =
-            new OperationSpecification(
-                spec.getOperation(),
-                spec.getIdentifiers(),
-                randoopThrowsSpecs,
-                randoopPostSpecs,
-                randoopPreSpecs);
-        randoopSpecs.add(newOperationSpec);
+      // Get rid of empty specifications.
+      final List<PreSpecification> preSpecifications = spec.getPreSpecifications();
+      preSpecifications.removeIf(s -> s.getGuard().getConditionText().isEmpty());
+      final List<PostSpecification> postSpecifications = spec.getPostSpecifications();
+      postSpecifications.removeIf(s -> s.getGuard().getConditionText().isEmpty());
+      final List<ThrowsSpecification> throwsSpecifications = spec.getThrowsSpecifications();
+      throwsSpecifications.removeIf(s -> s.getGuard().getConditionText().isEmpty());
+      if (spec.isEmpty()
+          || (preSpecifications.isEmpty()
+              && postSpecifications.isEmpty()
+              && throwsSpecifications.isEmpty())) {
+        continue;
       }
-      writeRandoopSpecsFile(randoopSpecsFile, randoopSpecs);
+
+      // Convert specifications to Randoop format: args -> actual param name.
+      final List<PreSpecification> randoopPreSpecs =
+          convertPreSpecifications(documentedExecutable, preSpecifications);
+      final List<PostSpecification> randoopPostSpecs =
+          convertPostSpecifications(documentedExecutable, postSpecifications);
+      final List<ThrowsSpecification> randoopThrowsSpecs =
+          convertThrowsSpecifications(documentedExecutable, throwsSpecifications);
+
+      for (PreSpecification preSpec : randoopPreSpecs) {
+        String guard = preSpec.getGuard().getConditionText();
+        ArrayList<String> words = cleanGuard(guard);
+        for (Statement statement : documentedExecutable.getMethodBody()) {
+          int count = 0;
+          for (String kw : words) {
+            if (statement.toString().contains(kw)) {
+              count++;
+            }
+            if (count > 1) {
+              System.out.println(guard + " VS " + statement.toString() + "\n");
+            }
+          }
+        }
+      }
+
+      final OperationSpecification newOperationSpec =
+          new OperationSpecification(
+              spec.getOperation(),
+              spec.getIdentifiers(),
+              randoopThrowsSpecs,
+              randoopPostSpecs,
+              randoopPreSpecs);
+      randoopSpecs.add(newOperationSpec);
     }
+    // writeRandoopSpecsFile(randoopSpecsFile, randoopSpecs);
+    // }
+  }
+
+  private static ArrayList<String> cleanGuard(String guard) {
+    ArrayList<String> keywords = new ArrayList<>();
+    String regex = "\\w+";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(guard);
+    while (matcher.find()) {
+      String match = matcher.group(0);
+      if (!match.matches("false|true")) {
+        keywords.add(matcher.group(0));
+      }
+    }
+    return keywords;
   }
 
   private static List<PreSpecification> convertPreSpecifications(
